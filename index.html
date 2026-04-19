@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>IA de Comida</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: white;
+}
+
+/* NAV */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 40px;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.nav button {
+  background: transparent;
+  border: 1px solid #334155;
+  padding: 8px 16px;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.nav button:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  margin-top: 80px;
+}
+
+.hero h1 {
+  font-size: 55px;
+  font-weight: bold;
+  color: white;
+}
+
+.hero p {
+  margin-top: 15px;
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.hero button {
+  margin-top: 30px;
+  padding: 15px 35px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.hero button:hover {
+  transform: scale(1.05);
+  background: #1d4ed8;
+}
+
+/* FEATURES */
+.features {
+  margin-top: 100px;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 20px;
+}
+
+.card {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 25px;
+  border-radius: 20px;
+  width: 220px;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+}
+
+.icon {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  margin-top: 80px;
+  padding: 20px;
+  color: #64748b;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="logo">🍽️ IA Comida</div>
+  <button onclick="irLogin()">Iniciar sesión</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>¿Que quieres comer hoy?</h1>
+  <p>Habla con la IA y encuentra tus platos preferidos en Ica</p>
+  <button onclick="irLogin()">Empezar ahora</button>
+</div>
+
+<!-- FEATURES -->
+<div class="features">
+
+  <div class="card">
+    <div class="icon">🤖</div>
+    <h3>IA Inteligente</h3>
+    <p>Entiende lo que quieres comer</p>
+  </div>
+
+  <div class="card">
+    <div class="icon">📍</div>
+    <h3>Ubicación</h3>
+    <p>Restaurantes cercanos en segundos</p>
+  </div>
+
+  <div class="card">
+    <div class="icon">🚚</div>
+    <h3>Delivery</h3>
+    <p>Filtra por envío disponible</p>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Hecho con 💙 en Ica
+</div>
+
+<script>
+
+// 🔥 AUTO LOGIN
+const user = localStorage.getItem("user");
+
+if (user) {
+  const u = JSON.parse(user);
+
+  if (u.tipo === "proveedor") {
+    window.location.href = "panel_proveedor.html";
+  } else {
+    window.location.href = "plataforma.html";
+  }
+}
+
+function irLogin() {
+  window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>

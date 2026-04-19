@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>IA de Comida 🍽️</title>
+
+  <style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #0f172a;
+  color: white;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 280px;
+  background: #020617;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar button {
+  background: #1e293b;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: 0.3s;
+}
+
+.sidebar button:hover {
+  background: #334155;
+}
+
+#listaChats div {
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#listaChats div:hover {
+  background: #1e293b;
+}
+
+/* 🔥 CHAT */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.chat-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🔥 MENSAJES */
+.mensaje {
+  max-width: 60%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 15px;
+  line-height: 1.4;
+}
+
+.user {
+  align-self: flex-end;
+  background: #2563eb;
+}
+
+.bot {
+  align-self: flex-start;
+  background: #1e293b;
+}
+
+/* 🔥 INPUT */
+.input-area {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: #1e293b;
+  color: white;
+}
+
+.input-area button {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.input-area button:hover {
+  background: #1d4ed8;
+}
+
+
+.card {
+  background: #1e293b;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 12px;
+  max-width: 60%;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.card h3 {
+  margin: 0 0 5px;
+  color: #38bdf8;
+}
+
+.card p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+/* animación suave */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <button onclick="nuevoChat()">+ Nuevo chat</button>
+    <div id="listaChats"></div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-container">
+    
+<div style="display:flex; justify-content:space-between; align-items:center;">
+  <h2>🍽️ Asistente de comida en Ica</h2>
+  <button onclick="cerrarSesion()">Cerrar sesión</button>
+</div>
+
+    <div id="chat" class="chat-box"></div>
+
+    <div class="input-area">
+      <input type="text" id="input" placeholder="Escribe lo que quieres comer..." />
+      <button onclick="enviar()">Enviar</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+  alert("Debes iniciar sesión");
+  window.location.href = "login.html";
+}
+
+let userId = user._id;
+
+let chatId = localStorage.getItem("chatId");
+
+if (!chatId || !chatId.includes(userId)) {
+  chatId = "chat_" + userId + "_" + Math.random().toString(36).substring(2, 9);
+  localStorage.setItem("chatId", chatId);
+}
+
+let ultimaLista = [];
+
+console.log("User ID:", userId);
+
+let chats = JSON.parse(localStorage.getItem("chats")) || [];
+
+function guardarChats() {
+  localStorage.setItem("chats", JSON.stringify(chats));
+}
+
+if (!chats.find(c => c.id === chatId)) {
+  chats.push({
+    id: chatId,
+    nombre: "Nuevo chat"
+  });
+  guardarChats();
+}
+
+console.log("Chat ID:", chatId);
+
+function nuevoChat() {
+  const nuevoId = "chat_" + userId + "_" + Math.random().toString(36).substring(2, 9);
+
+  chats.push({
+    id: nuevoId,
+    nombre: "Nuevo chat"
+  });
+
+  guardarChats();
+
+  localStorage.setItem("chatId", nuevoId);
+
+  location.reload();
+}
+
+function renderChats() {
+  const contenedor = document.getElementById("listaChats");
+  contenedor.innerHTML = "";
+
+  
+chats
+  .filter(chat => chat.id.includes(userId))
+  .forEach(chat => {
+    const div = document.createElement("div");
+    div.innerText = chat.nombre || "Nuevo chat";
+    div.style.cursor = "pointer";
+    div.style.marginBottom = "5px";
+
+    div.onclick = () => {
+      localStorage.setItem("chatId", chat.id);
+      location.reload();
+    };
+
+    contenedor.appendChild(div);
+  });
+}
+
+function agregarMensaje(texto, tipo) {
+  const chat = document.getElementById("chat");
+
+  const div = document.createElement("div");
+  div.classList.add("mensaje", tipo);
+  div.innerText = texto;
+
+  chat.appendChild(div);
+
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function mostrarRestaurantes(lista) {
+  const chat = document.getElementById("chat");
+
+  for (const r of lista) {
+const completo = await obtenerNegocioCompleto(r.nombre);
+
+const comentarios = Array.isArray(completo?.comentarios) ? completo.comentarios : [];
+
+const rating = comentarios.length > 0
+  ? (comentarios.reduce((acc, c) => acc + c.rating, 0) / comentarios.length).toFixed(1)
+  : "Nuevo";
+
+    
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+  card.innerHTML = `
+  <h3>${completo.nombre}</h3>
+  <p>${generarEstrellas(rating)}</p>
+  <p>📍 ${completo.distrito}, ${completo.provincia}</p>
+  <p>📌 ${completo.direccion || "Dirección no disponible"}</p>
+
+  <p>🍽️ ${
+    completo.platos
+      ?.filter(p => p.disponible)
+      .map(p => p.nombre)
+      .join(", ")
+  }</p>
+  <p>${completo.delivery ? "🚚 Delivery disponible" : "❌ Sin delivery"}</p>
+
+  <button onclick="verMas('${completo.nombre}')">🔎 Ver más</button>
+  <button onclick="abrirWhatsApp('${completo.whatsapp}', '${completo.nombre}')">
+    📲 Pedir por WhatsApp
+  </button>
+  <button onclick="verMapa('${completo.maps}')">
+  📍 Ver ubicación
+  </button>
+`;
+
+    chat.appendChild(card);
+  }
+
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function enviar(){
+  
+let input = document.getElementById("input").value;
+
+if(input.trim() === "") return;
+
+document.getElementById("input").value = "";
+
+agregarMensaje("Tú: " + input, "user");
+
+const mensajeLower = input.toLowerCase();
+
+const usaMemoria =
+  mensajeLower.includes("ese") ||
+  mensajeLower.includes("el primero") ||
+  mensajeLower.includes("el segundo") ||
+  mensajeLower.includes("otro") ||
+  mensajeLower.includes("ese restaurante");
+
+const esPreguntaDetalle =
+  mensajeLower.includes("delivery") ||
+  mensajeLower.includes("abierto") ||
+  mensajeLower.includes("atiende") ||
+  mensajeLower.includes("hora") ||
+  mensajeLower.includes("donde") ||
+  mensajeLower.includes("queda");
+
+if (esPreguntaDetalle && ultimaLista.length > 0) {
+  let respuesta = "IA: ";
+
+  if (mensajeLower.includes("delivery")) {
+    const conDelivery = ultimaLista.filter(r => r.delivery);
+
+    if (conDelivery.length > 0) {
+      respuesta += "Sí 👍 los siguientes tienen delivery: ";
+      respuesta += conDelivery.map(r => r.nombre).join(", ");
+    } else {
+      respuesta += "Ninguno de los que te mostré tiene delivery 😢";
+    }
+  }
+
+  if (mensajeLower.includes("abierto")) {
+    respuesta += " Todos los mostrados están abiertos actualmente.";
+  }
+
+ if (
+    mensajeLower.includes("donde") ||
+    mensajeLower.includes("queda") ||
+    mensajeLower.includes("ubicado")
+  ) {
+    respuesta += "Están ubicados en: ";
+    respuesta += ultimaLista
+      .map(r => `${r.nombre} (${r.distrito}, ${r.provincia})`)
+      .join(", ");
+  }
+
+  agregarMensaje(respuesta, "bot");
+  return; 
+}
+
+
+let chatActual = chats.find(c => c.id === chatId);
+
+if (chatActual && chatActual.nombre === "Nuevo chat") {
+  chatActual.nombre = input.substring(0, 30);
+  guardarChats();
+}
+
+
+if (usaMemoria && ultimaLista.length > 0) {
+  let seleccionado = ultimaLista[0]; // por defecto el primero
+
+if (mensajeLower.includes("segundo") && ultimaLista[1]) {
+  seleccionado = ultimaLista[1];
+}
+
+if (mensajeLower.includes("otro") && ultimaLista[1]) {
+  seleccionado = ultimaLista[1];
+}  
+
+  agregarMensaje(
+    `IA: ${seleccionado.nombre} tiene ⭐ ${seleccionado.rating}, está en ${seleccionado.distrito} y ${
+      seleccionado.delivery ? "sí tiene delivery 🚚" : "no tiene delivery"
+    }.`,
+    "bot"
+  );
+
+  
+}
+
+
+  try {
+    const res = await fetch("http://localhost:3000/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+  mensaje: input,
+  userId: userId,
+  chatId: chatId
+})
+    });
+
+    const data = await res.json();
+
+if (data.restaurantes && data.restaurantes.length > 0) {
+  ultimaLista = data.restaurantes;
+}
+
+
+if (data.content) {
+  agregarMensaje("IA: " + data.content, "bot");
+}
+
+if (data.restaurantes && data.restaurantes.length > 0) {
+  mostrarRestaurantes(data.restaurantes);
+}
+
+  } catch (error) {
+    console.log(error);
+    agregarMensaje("IA: Error al conectar con el servidor 😢", "bot");
+  }
+
+  document.getElementById("input").value = "";
+}
+
+async function cargarHistorial() {
+  const res = await fetch(
+    `http://localhost:3000/historial?userId=${userId}&chatId=${chatId}`
+  );
+
+  const mensajes = await res.json();
+
+  const chat = document.getElementById("chat");
+  chat.innerHTML = "";
+
+for (const msg of mensajes) {
+  if (msg.role === "user") {
+    agregarMensaje("Tú: " + msg.content, "user");
+  } else {
+    agregarMensaje("IA: " + msg.content, "bot");
+
+    // 🔥 si hay restaurantes, mostrarlos otra vez
+    if (msg.restaurantes && msg.restaurantes.length > 0) {
+      await mostrarRestaurantes(msg.restaurantes);
+
+    }
+  }
+}
+
+}
+
+function verMas(nombre) {
+  localStorage.setItem("restauranteSeleccionado", nombre);
+  window.location.href = "restaurante.html";
+}
+
+async function obtenerNegocioCompleto(nombre) {
+  const res = await fetch("http://localhost:3000/negocios");
+  const data = await res.json();
+  return data.find(n => n.nombre.trim().toLowerCase() === nombre.trim().toLowerCase());
+}
+
+
+function generarEstrellas(rating) {
+  if (rating === "Nuevo") return "⭐ Nuevo";
+
+  const numero = Math.round(rating);
+
+  let estrellas = "";
+  for (let i = 0; i < numero; i++) {
+    estrellas += "⭐";
+  }
+
+  return `${estrellas} (${rating})`;
+}
+
+function abrirWhatsApp(numero, nombre) {
+  if (!numero) {
+    alert("Este restaurante no tiene WhatsApp");
+    return;
+  }
+	
+  const mensaje = `Hola, vengo de la IA y quiero pedir en ${nombre}`;
+  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+
+  window.open(url, "_blank");
+}
+
+function verMapa(link) {
+  if (!link) {
+    alert("Ubicación no disponible 😢");
+    return;
+  }
+
+  window.open(link, "_blank");
+}
+
+renderChats();
+
+// 🔥 solo carga historial si el chat está vacío
+const chat = document.getElementById("chat");
+if (chat.children.length === 0) {
+  cargarHistorial();
+}
+
+function cerrarSesion() {
+  localStorage.removeItem("user");
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

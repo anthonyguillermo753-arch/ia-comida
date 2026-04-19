@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Restaurante</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #020617;
+  color: white;
+  padding: 20px;
+}
+
+.card {
+  background: #0f172a;
+  padding: 20px;
+  border-radius: 20px;
+  max-width: 420px;
+  margin: auto;
+}
+
+h2 {
+  margin-bottom: 5px;
+}
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.abierto { background: green; }
+.cerrado { background: red; }
+
+.comentario {
+  background: #1e293b;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 5px 0;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 5px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  margin-top: 10px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2 id="nombre">El Braserito</h2>
+
+<div id="estado" class="badge abierto">Abierto</div>
+
+<p>⭐ <span id="rating">4.5</span></p>
+
+<p>📍 <span id="ubicacion">Ica, Ica, Ica</span></p>
+
+<p>🚚 <span id="delivery">Sí (mínimo S/20)</span></p>
+
+<h3>🍽️ Platos disponibles</h3>
+<ul id="platos"></ul>
+
+<hr>
+
+<h3>💬 Comentarios</h3>
+<div id="comentarios"></div>
+
+<hr>
+
+<h3>⭐ Deja tu opinión</h3>
+
+<select id="ratingInput">
+  <option value="5">⭐⭐⭐⭐⭐</option>
+  <option value="4">⭐⭐⭐⭐</option>
+  <option value="3">⭐⭐⭐</option>
+  <option value="2">⭐⭐</option>
+  <option value="1">⭐</option>
+</select>
+
+<textarea id="comentarioInput" placeholder="Escribe tu comentario"></textarea>
+
+<button onclick="enviarComentario()">Enviar</button>
+
+</div>
+
+<script>
+
+let restaurantes = [];
+let comentarios = [];
+
+async function obtenerRestaurantes() {
+  try {
+    const res = await fetch("http://localhost:3000/negocios");
+    restaurantes = await res.json();
+
+    console.log("Datos reales:", restaurantes);
+
+    cargar(); // 🔥 cargar datos en pantalla
+
+  } catch (error) {
+    console.log("Error al obtener datos", error);
+  }
+}
+
+function cargar() {
+
+const nombreSeleccionado = localStorage.getItem("restauranteSeleccionado");
+
+const restaurante = restaurantes.find(r => r.nombre === nombreSeleccionado);
+
+if (!restaurante) return;
+  
+document.getElementById("nombre").innerText = restaurante.nombre;
+
+  document.getElementById("estado").innerText = restaurante.abierto ? "Abierto" : "Cerrado";
+
+  document.getElementById("ubicacion").innerText =
+    `${restaurante.distrito}, ${restaurante.provincia}, ${restaurante.departamento}`;
+
+  document.getElementById("delivery").innerText =
+    restaurante.delivery ? `Sí (${restaurante.condiciones})` : "No";
+
+  document.getElementById("rating").innerText = calcularPromedio();
+
+  // platos
+  const lista = document.getElementById("platos");
+  lista.innerHTML = "";
+
+  (restaurante.platos || []).forEach(p => {
+    if (p.disponible) {
+      const li = document.createElement("li");
+      li.innerText = p.nombre;
+      lista.appendChild(li);
+    }
+  });
+
+  // comentarios
+   const cont = document.getElementById("comentarios");
+  cont.innerHTML = "";
+
+  (restaurante.comentarios || []).forEach(c => {
+    const div = document.createElement("div");
+    div.className = "comentario";
+    div.innerHTML = `<strong>${"⭐".repeat(c.rating)}</strong><br>${c.texto}`;
+    cont.appendChild(div);
+  });
+
+}
+
+async function enviarComentario() {
+  const texto = document.getElementById("comentarioInput").value;
+
+  if (!texto.trim()) return;
+
+  const rating = parseInt(document.getElementById("ratingInput").value);
+
+  const restaurante = restaurantes.find(r =>
+    r.nombre === localStorage.getItem("restauranteSeleccionado")
+  );
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  try {
+    const res = await fetch("http://localhost:3000/agregar-comentario", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        nombreNegocio: restaurante.nombre,
+        texto,
+        rating,
+        userId: user._id
+      })
+    });
+
+    const data = await res.json();
+
+    alert(data.mensaje);
+
+    document.getElementById("comentarioInput").value = "";
+
+    obtenerRestaurantes();
+
+  } catch (error) {
+    console.log(error);
+    alert("❌ Error al enviar comentario");
+  }
+}
+
+function calcularPromedio() {
+  const restaurante = restaurantes[0];
+
+  if (!restaurante || !restaurante.comentarios || restaurante.comentarios.length === 0) {
+    return 0;
+  }
+
+  let total = 0;
+
+  restaurante.comentarios.forEach(c => {
+    total += c.rating;
+  });
+
+  return (total / restaurante.comentarios.length).toFixed(1);
+}
+
+obtenerRestaurantes();
+
+</script>
+
+</body>
+</html>

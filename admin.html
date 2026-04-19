@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel Admin</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #020617;
+  color: white;
+  padding: 20px;
+}
+
+.card {
+  background: #0f172a;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>👤 Clientes</h2>
+<div id="clientes"></div>
+
+<h2>🏪 Proveedores</h2>
+<div id="proveedores"></div>
+
+<script>
+
+async function cargarUsuarios() {
+  const resUsuarios = await fetch("http://localhost:3000/usuarios");
+  const usuarios = await resUsuarios.json();
+
+  const resNegocios = await fetch("http://localhost:3000/negocios");
+  const negocios = await resNegocios.json();
+
+  const contClientes = document.getElementById("clientes");
+  const contProveedores = document.getElementById("proveedores");
+
+  contClientes.innerHTML = "";
+  contProveedores.innerHTML = "";
+
+  usuarios.forEach(u => {
+
+    
+    if (u.tipo === "cliente") {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `
+        <strong>${u.nombre}</strong><br>
+        ${u.email}
+      `;
+      contClientes.appendChild(div);
+    }
+
+   
+    if (u.tipo === "proveedor") {
+
+      const negocio = negocios.find(n => n.ownerId === u._id);
+
+      const div = document.createElement("div");
+      div.className = "card";
+
+      div.innerHTML = `
+        <strong>${u.nombre}</strong><br>
+        ${u.email}<br>
+        🏪 Restaurante: ${negocio ? negocio.nombre : "❌ No tiene restaurante"}
+      `;
+
+      contProveedores.appendChild(div);
+    }
+
+  });
+}
+
+async function cargarNegocios() {
+  const res = await fetch("http://localhost:3000/negocios");
+  const data = await res.json();
+
+  const cont = document.getElementById("negocios");
+  cont.innerHTML = "";
+
+  data.forEach(n => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <strong>${n.nombre}</strong><br>
+      📍 ${n.distrito}, ${n.provincia}<br>
+      ${n.abierto ? "🟢 Abierto" : "🔴 Cerrado"}
+    `;
+    cont.appendChild(div);
+  });
+}
+
+cargarUsuarios();
+cargarNegocios();
+
+</script>
+
+</body>
+</html>

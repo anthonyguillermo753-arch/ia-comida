@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel Negocio</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #020617;
+  color: white;
+  padding: 20px;
+}
+
+.card {
+  background: #0f172a;
+  padding: 20px;
+  border-radius: 20px;
+  max-width: 420px;
+  margin: auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background: #1e293b;
+  margin: 15px 0;
+}
+
+/* 🔥 TOGGLE */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #334155;
+  border-radius: 34px;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  transition: .3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .3s;
+}
+
+input:checked + .slider {
+  background-color: #22c55e;
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* inputs */
+input[type="text"], textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  margin-top: 5px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.plato {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+  <h2>🏪 <span id="nombreRestauranteTexto">Mi Restaurante</span></h2>
+  <button onclick="cerrarSesion()">Cerrar sesión</button>
+</div>
+
+<p id="ratingTexto">⭐ Nuevo</p>
+
+<input type="text" id="nombreRestauranteInput" placeholder="Nombre del restaurante">
+<button onclick="cambiarNombre()">✏️ Cambiar nombre</button>
+
+
+<!-- ESTADO -->
+<div class="plato">
+  <span id="estadoTexto">Cerrado</span>
+  <label class="switch">
+    <input type="checkbox" id="estadoToggle">
+    <span class="slider"></span>
+  </label>
+</div>
+
+<hr>
+
+<h3>🍽️ Platos disponibles</h3>
+
+<div id="listaPlatos">
+
+<div class="plato">
+  <span>Pollo a la brasa</span>
+  <label class="switch">
+    <input type="checkbox" value="pollo">
+    <span class="slider"></span>
+  </label>
+</div>
+
+<div class="plato">
+  <span>Mostrito</span>
+  <label class="switch">
+    <input type="checkbox" value="mostrito">
+    <span class="slider"></span>
+  </label>
+</div>
+
+</div>
+
+<!-- AGREGAR PLATO -->
+<input type="text" id="nuevoPlato" placeholder="Agregar nuevo plato">
+<button onclick="agregarPlato()">➕ Agregar</button>
+
+<hr>
+
+<h3>🚚 Delivery</h3>
+
+<div class="plato">
+  <span>Disponible</span>
+  <label class="switch">
+    <input type="checkbox" id="delivery">
+    <span class="slider"></span>
+  </label>
+</div>
+
+<textarea id="condiciones" placeholder="Ej: pedido mínimo S/20"></textarea>
+
+<hr>
+
+<h3>📍 Dirección</h3>
+
+<input type="text" id="direccion" placeholder="Dirección">
+<input type="text" id="distrito" placeholder="Distrito">
+<input type="text" id="provincia" placeholder="Provincia">
+<input type="text" id="departamento" placeholder="Departamento">
+<input type="text" id="maps" placeholder="Link de Google Maps">
+<input type="text" id="whatsapp" placeholder="Número WhatsApp (ej: 51987654321)">
+
+<button onclick="guardar()">💾 Guardar cambios</button>
+
+</div>
+
+<script>
+
+let nombreRestaurante = "Mi Restaurante";
+
+function cambiarNombre() {
+  const input = document.getElementById("nombreRestauranteInput");
+
+  if (!input.value.trim()) return;
+
+  const nuevoNombre = input.value.trim();
+
+  nombreRestaurante = nuevoNombre;
+
+  document.getElementById("nombreRestauranteTexto").innerText = nuevoNombre;
+}
+
+function agregarPlato() {
+  const input = document.getElementById("nuevoPlato");
+  const nombre = input.value.trim();
+
+  if (!nombre) return;
+
+  const contenedor = document.getElementById("listaPlatos");
+
+  const div = document.createElement("div");
+  div.className = "plato";
+
+ div.innerHTML = `
+  <span>${nombre}</span>
+  <label class="switch">
+    <input type="checkbox" value="${nombre}" checked>
+    <span class="slider"></span>
+  </label>
+`;
+  contenedor.appendChild(div);
+  input.value = "";
+}
+
+function guardar() {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const abierto = document.getElementById("estadoToggle").checked;
+
+  const checkboxes = document.querySelectorAll("#listaPlatos input");
+  let platos = [];
+
+  checkboxes.forEach(c => {
+    platos.push({
+      nombre: c.value,
+      disponible: c.checked
+    });
+  });
+
+  const data = {
+    nombre: document.getElementById("nombreRestauranteInput").value.trim(),
+    abierto,
+    platos,
+    delivery: document.getElementById("delivery").checked,
+    condiciones: document.getElementById("condiciones").value,
+    direccion: document.getElementById("direccion").value,
+    distrito: document.getElementById("distrito").value,
+    provincia: document.getElementById("provincia").value,
+    departamento: document.getElementById("departamento").value,
+    maps: document.getElementById("maps").value,
+    ownerId: user._id,
+    whatsapp: document.getElementById("whatsapp").value
+  };
+
+  fetch("http://localhost:3000/guardar-negocio", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(() => {
+    alert("✅ Guardado en MongoDB");
+  })
+  .catch(() => {
+    alert("❌ Error al guardar");
+  });
+}
+
+async function cargarMiNegocio() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) return;
+
+  const res = await fetch("http://localhost:3000/negocios");
+  const negocios = await res.json();
+
+  const miNegocio = negocios.find(n => n.ownerId === user._id);
+  if (!miNegocio) return;
+
+  document.getElementById("nombreRestauranteTexto").innerText = miNegocio.nombre;
+  document.getElementById("nombreRestauranteInput").value = miNegocio.nombre;
+
+  document.getElementById("estadoToggle").checked = miNegocio.abierto;
+
+  document.getElementById("delivery").checked = miNegocio.delivery || false;
+  document.getElementById("condiciones").value = miNegocio.condiciones || "";
+
+  document.getElementById("direccion").value = miNegocio.direccion || "";
+  document.getElementById("distrito").value = miNegocio.distrito || "";
+  document.getElementById("provincia").value = miNegocio.provincia || "";
+  document.getElementById("departamento").value = miNegocio.departamento || "";
+document.getElementById("whatsapp").value = miNegocio.whatsapp || "";
+
+  const contenedor = document.getElementById("listaPlatos");
+  contenedor.innerHTML = "";
+
+  (miNegocio.platos || []).forEach(p => {
+    const div = document.createElement("div");
+div.className = "plato";
+
+   div.innerHTML = `
+  <span>${p.nombre}</span>
+  <label class="switch">
+    <input type="checkbox" value="${p.nombre}" ${p.disponible ? "checked" : ""}>
+    <span class="slider"></span>
+  </label>
+`;
+
+    contenedor.appendChild(div);
+  });
+}
+
+document.getElementById("estadoToggle").addEventListener("change", function() {
+  document.getElementById("estadoTexto").innerText = this.checked ? "Abierto" : "Cerrado";
+});
+
+cargarMiNegocio();
+
+function cerrarSesion() {
+  localStorage.removeItem("user");
+  window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+</html>

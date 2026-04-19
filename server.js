@@ -239,13 +239,13 @@ await db.collection("mensajes").insertOne({
   restaurantes: filtrados
 });
 
-  } catch (error) {
-    console.log(error);
-    res.json({
-      content: "Error del servidor 😢"
-    });
-  }
-});
+} catch (error) {
+  console.error("🔥 ERROR REAL:", error);
+
+  res.json({
+    content: "Error del servidor 😢"
+  });
+}
 
 app.get("/historial", async (req, res) => {
   const userId = req.query.userId;

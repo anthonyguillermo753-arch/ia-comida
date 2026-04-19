@@ -167,11 +167,7 @@ body {
 
   <!-- CHAT -->
   <div class="chat-container">
-    
-<div style="display:flex; justify-content:space-between; align-items:center;">
-  <h2>🍽️ Asistente de comida en Ica</h2>
-  <button onclick="cerrarSesion()">Cerrar sesión</button>
-</div>
+    <h2>🍽️ Asistente de comida en Ica</h2>
 
     <div id="chat" class="chat-box"></div>
 
@@ -407,7 +403,7 @@ if (mensajeLower.includes("otro") && ultimaLista[1]) {
 
 
   try {
-    const res = await fetch("http://localhost:3000/chat", {
+    const res = await fetch("https://ia-comida-backend.onrender.com/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -520,11 +516,6 @@ renderChats();
 const chat = document.getElementById("chat");
 if (chat.children.length === 0) {
   cargarHistorial();
-}
-
-function cerrarSesion() {
-  localStorage.removeItem("user");
-  window.location.href = "index.html";
 }
 </script>
 

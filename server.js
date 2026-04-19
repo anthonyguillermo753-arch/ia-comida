@@ -205,9 +205,12 @@ FORMA DE RESPONDER:
 
   },
 contextoRestaurantes,  
-...historial
+...historial,
+ {
+    role: "user",
+    content: mensaje
+  }
 ]
-
       })
     });
 

@@ -201,7 +201,7 @@ FORMA DE RESPONDER:
 - Primero responde con una frase breve
 - Luego el sistema mostrará las tarjetas (no las repitas)
 - Si el usuario hace seguimiento (ej: "dónde queda", "tiene delivery"), responde directamente sobre lo último mencionado
-`
+`,
 
   },
 contextoRestaurantes,  

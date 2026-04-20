@@ -246,6 +246,7 @@ await db.collection("mensajes").insertOne({
     content: "Error del servidor 😢"
   });
 }
+});
 
 app.get("/historial", async (req, res) => {
   const userId = req.query.userId;

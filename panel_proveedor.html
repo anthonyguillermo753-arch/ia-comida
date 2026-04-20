@@ -258,7 +258,7 @@ function guardar() {
     whatsapp: document.getElementById("whatsapp").value
   };
 
-  fetch("http://localhost:3000/guardar-negocio", {
+  fetch("https://ia-comida-backend.onrender.com/guardar-negocio", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -278,7 +278,7 @@ async function cargarMiNegocio() {
   const user = JSON.parse(localStorage.getItem("user"));
   if (!user) return;
 
-  const res = await fetch("http://localhost:3000/negocios");
+  const res = await fetch("https://ia-comida-backend.onrender.com/negocios");
   const negocios = await res.json();
 
   const miNegocio = negocios.find(n => n.ownerId === user._id);

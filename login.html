@@ -51,7 +51,7 @@ button {
 <input type="email" id="email" placeholder="Correo" autocomplete="off">
 <input type="password" id="password" placeholder="Contraseña" autocomplete="new-password">
 
-<button onclick="login()">Ingresar</button>
+<button type="button" onclick="login()">Ingresar</button>
 
 <hr>
 
@@ -66,28 +66,34 @@ button {
   <option value="proveedor">Proveedor</option>
 </select>
 
-<button onclick="registro()">Crear cuenta</button>
+<button type="button" onclick="registro()">Crear cuenta</button>
 
 </div>
 
 <script>
 
 async function registro() {
-  const nombre = document.getElementById("nombre").value;
-  const email = document.getElementById("emailRegistro").value;
-  const password = document.getElementById("passwordRegistro").value;
-  const tipo = document.getElementById("tipo").value;
+  try {
+    const nombre = document.getElementById("nombre").value;
+    const email = document.getElementById("emailRegistro").value;
+    const password = document.getElementById("passwordRegistro").value;
+    const tipo = document.getElementById("tipo").value;
 
-  const res = await fetch("https://ia-comida-backend.onrender.com/registro", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ nombre, email, password, tipo })
-  });
+    const res = await fetch("https://ia-comida-backend.onrender.com/registro", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ nombre, email, password, tipo })
+    });
 
-  const data = await res.json();
-  alert(data.mensaje);
+    const data = await res.json();
+    alert(data.mensaje);
+
+  } catch (error) {
+    console.error("ERROR:", error);
+    alert("Error al registrar 😢");
+  }
 }
 
 async function login() {

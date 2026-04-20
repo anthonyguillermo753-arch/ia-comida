@@ -158,11 +158,6 @@ body {
   cursor: pointer;
 }
 
-position: absolute;
-  top: 15px;
-  right: 20px;
-}
-
 .btn-logout:hover {
   background: #e60000;
 }
@@ -183,9 +178,9 @@ position: absolute;
 
   <!-- CHAT -->
   <div class="chat-container">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
   <h2>🍽️ Asistente de comida en Ica</h2>
-  <button onclick="cerrarSesion()">Cerrar sesión</button>
+  <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
 </div>
 
     <div id="chat" class="chat-box"></div>

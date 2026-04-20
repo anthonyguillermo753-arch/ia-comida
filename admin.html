@@ -32,10 +32,10 @@ body {
 <script>
 
 async function cargarUsuarios() {
-  const resUsuarios = await fetch("http://localhost:3000/usuarios");
+  const resUsuarios = await fetch("https://ia-comida-backend.onrender.com/usuarios");
   const usuarios = await resUsuarios.json();
 
-  const resNegocios = await fetch("http://localhost:3000/negocios");
+  const resNegocios = await fetch("https://ia-comida-backend.onrender.com/negocios");
   const negocios = await resNegocios.json();
 
   const contClientes = document.getElementById("clientes");
@@ -78,7 +78,7 @@ async function cargarUsuarios() {
 }
 
 async function cargarNegocios() {
-  const res = await fetch("http://localhost:3000/negocios");
+  const res = await fetch("https://ia-comida-backend.onrender.com/negocios");
   const data = await res.json();
 
   const cont = document.getElementById("negocios");

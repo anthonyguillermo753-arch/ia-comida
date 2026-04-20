@@ -114,7 +114,7 @@ async function login() {
   }
 
   const user = await res.json();
-
+  console.log("USER:", user);
   // 🔥 guardar usuario
   localStorage.setItem("user", JSON.stringify(user));
 

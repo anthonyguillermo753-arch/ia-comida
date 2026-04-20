@@ -109,7 +109,7 @@ let comentarios = [];
 
 async function obtenerRestaurantes() {
   try {
-    const res = await fetch("http://localhost:3000/negocios");
+    const res = await fetch("https://ia-comida-backend.onrender.com/negocios");
     restaurantes = await res.json();
 
     console.log("Datos reales:", restaurantes);
@@ -180,7 +180,7 @@ async function enviarComentario() {
   const user = JSON.parse(localStorage.getItem("user"));
 
   try {
-    const res = await fetch("http://localhost:3000/agregar-comentario", {
+    const resComentario = await fetch("https://ia-comida-backend.onrender.com/agregar-comentario", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

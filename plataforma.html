@@ -455,8 +455,8 @@ if (data.restaurantes && data.restaurantes.length > 0) {
 
 async function cargarHistorial() {
   const res = await fetch(
-    `http://localhost:3000/historial?userId=${userId}&chatId=${chatId}`
-  );
+  `https://ia-comida-backend.onrender.com/historial?userId=${userId}&chatId=${chatId}`
+);
 
   const mensajes = await res.json();
 
@@ -485,7 +485,7 @@ function verMas(nombre) {
 }
 
 async function obtenerNegocioCompleto(nombre) {
-  const res = await fetch("http://localhost:3000/negocios");
+  const res = await fetch("https://ia-comida-backend.onrender.com/negocios");
   const data = await res.json();
   return data.find(n => n.nombre.trim().toLowerCase() === nombre.trim().toLowerCase());
 }
